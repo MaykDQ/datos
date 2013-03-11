@@ -1,16 +1,15 @@
 <?php
+  // include('crud.remote.php');
+  // include('crud.php');
+
   include_once('libs/meekrodb.php');
   DB::$user = 'root';
   DB::$password = '';
   DB::$dbName = '_datos';
 
-  $table_to_user = "persona";
+  $table_to_user = "pedido";
 
-
-
-  // print_r($result);
-
-if(isset($_POST['btnpersona'])){
+if(isset($_POST['btnpedido'])){
 
   if(!is_numeric($_POST['inputId'])){
     $errores[] = "ID debe ser un dato numérico";
@@ -18,34 +17,22 @@ if(isset($_POST['btnpersona'])){
     $id = ($_POST['inputId']);
   }
 
- if(empty($_POST['inputNombre'])){
-    $errores[] = "Olvido digitar Nombre";
-  } else {
-    $nombre = ($_POST['inputNombre']);
-  }
-
-  if(empty($_POST['inputApellido'])){
+  if(empty($_POST['inputCant'])){
     $errores[] = "Olvido digitar Apellido";
   } else {
-    $apellido = ($_POST['inputApellido']);
+    $cantpedido = ($_POST['inputCant']);
   }
 
-  if(!is_numeric($_POST['inputTelefono'])){
-    $errores[] = " Verifique el numero Telefonico ";
+  if( empty($_POST['inputProduto']) ){
+    $errores[] = " Error en el Producto ";
     } else {
-    $telefono = ($_POST['inputTelefono']);
+    $productopedido = ($_POST['inputProduto']);
   }
 
-  if(empty($_POST['inputDireccion'])){
+  if(empty($_POST['inputCliente'])){
     $errores[] = " Olvido digitar la Direccion ";
   } else {
-    $direccion = ($_POST['inputDireccion']);
-  }
-
-  if(!is_numeric($_POST['inputTipo'])){
-    $errores[] = " Olvido digitar el Tipo ";
-  } else {
-    $tipo = ($_POST['inputTipo']);
+    $clientepedido = ($_POST['inputCliente']);
   }
 
 
@@ -53,17 +40,18 @@ if(empty($errores)){
 
   if(mysql_num_rows($result) == 0){
 
+    $current_timestamp = date("Y-m-d H:i:s");
+
     DB::$error_handler = false;
     DB::$throw_exception_on_error = true;
 
     try {
       DB::insert($table_to_user, array(
-        'idPersona'                   => $id,
-        'pers_nomb'                   => $nombre,
-        'pers_apel'                   => $apellido,
-        'pers_tele'                   => $telefono,
-        'pers_dire'                   => $direccion,
-        'TipoPersona_idTipoPersona'   => $tipo
+        'idPedido'                => $id,
+        'pedi_fech'               => $current_timestamp,
+        'pedi_cant'               => $cantpedido,
+        'idProducto'              => $productopedido,
+        'Personas_idPersona'      => $clientepedido
       ));
     } catch(MeekroDBException $e) {
         $count = $e->getMessage();
@@ -73,9 +61,8 @@ if(empty($errores)){
 
     if( !isset($count) ){
       $success = "El empleado ha quedado registrado en la base de datos";
-      // exit();
     } else {
-      $errors = "<h4>Error del sistema, no ha sido posible registrarlo en la BD</h4>".mysql_error();
+      $errors = "<h4>Error del sistema, no ha sido posible registrarlo en la BD</h4>".mysql_error().$count;
         // exit();
     }
 
@@ -83,28 +70,33 @@ if(empty($errores)){
     echo "<h1>Error del sistema</h1>";
     echo "El usuario ya ha sido registrado, por favor verifique sus datos";
   }
-
-
 } else {
-
   $errors = "<h3>Error!</h3>".
   "<p>Se presentaron los siguientes errores al diligenciar el fomulario:</p>";
-
-
 }
  mysql_close();
 }
 
-  $result           = DB::query("SELECT * FROM {$table_to_user}");
+  $result_producto    = DB::query("SELECT * FROM {$table_to_user}");
 
-  $result_tipo      = DB::query("SELECT       tipopersona.tipo_pers
-                                  FROM        persona, tipopersona
-                                  WHERE       persona.TipoPersona_idTipoPersona = tipopersona.idTipoPersona
-                                  ORDER BY    persona.idPersona");
+  $result_nomb        = DB::query("SELECT   persona.pers_nomb, persona.pers_apel
+                                    FROM      pedido, persona
+                                    WHERE     pedido.Personas_idPersona =  persona.idPersona
+                                    ORDER BY  pedido.idPedido");
 
-  $result_cbx_tio   = DB::query("SELECT       tipopersona.idTipoPersona, tipopersona.tipo_pers
-                                  FROM        tipopersona
-                                  ORDER BY    tipopersona.idTipoPersona");
+  $result_detalle     = DB::query("SELECT   pedido.idPedido, producto.prod_nomb, producto.idProducto
+                                    FROM      producto, pedido
+                                    WHERE     producto.idProducto =  pedido.idProducto
+                                    ORDER BY  pedido.idPedido");
+
+  $resul_cbx_producto =  DB::query("SELECT  producto.idProducto, producto.prod_nomb
+                                    FROM    producto
+                                    ORDER BY producto.idProducto");
+
+  $resul_cbx_cliente  =  DB::query("SELECT   persona.idPersona, persona.pers_nomb, persona.pers_apel
+                                    FROM    persona
+                                    ORDER BY persona.idPersona");
+
 ?>
 
 <!DOCTYPE html>
@@ -124,7 +116,7 @@ if(empty($errores)){
       }
     </style>
     <link href="css/bootstrap-responsive.css" rel="stylesheet">
-        <link href="css/css.css" rel="stylesheet">
+    <link href="css/css.css" rel="stylesheet">
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -154,9 +146,9 @@ if(empty($errores)){
             <ul class="nav">
               <li ><a href="index.php"> Todo </a></li>
               <li><a href="categoria.php"> Categoria </a></li>
-              <li><a href="pedido.php"> Pedido </a></li>
-              <li class="active"><a href="personas.php"> Persona </a></li>
-              <li><a href="producto.php"> Producto </a></li>
+              <li class="active"><a href="pedido.php"> Pedido </a></li>
+              <li ><a href="personas.php"> Persona </a></li>
+              <li ><a href="producto.php"> Producto </a></li>
               <li><a href="tipopersona.php"> Tipo Persona </a></li>
             </ul>
           </div><!--/.nav-collapse -->
@@ -197,7 +189,7 @@ if(empty($errores)){
 ?>
 
 <!-- ::::::::::::::::::::::::::::::: -->
-  <legend> Agregar Persona <button id="showcont"class="btn " name="btnpedido"><i class='icon-plus'></i> </button></legend>
+  <legend> Agregar Pedido <button id="showcont"class="btn " name="btnpedido"><i class='icon-plus'></i> </button></legend>
     <form id="fromadd" class="form-horizontal" action="<?php echo $_SERVER['PHP_SELF']?>" method="post">
       <div class="control-group">
         <label class="control-label" for="inputId"># ID </label>
@@ -207,40 +199,32 @@ if(empty($errores)){
       </div>
 
       <div class="control-group">
-        <label class="control-label" for="inputNombre"> Nombre </label>
+        <label class="control-label" for="inputCant"> Cant </label>
         <div class="controls">
-        <input type="text" id="inputNombre" placeholder="Nombre" name="inputNombre" value="<?php if (isset($_POST['inputNombre'])) echo $_POST['inputNombre']; ?>">
+        <input type="text" id="inputCant" placeholder="Cant" name="inputCant" value="<?php if (isset($_POST['inputCant'])) echo $_POST['inputCant']; ?>">
         </div>
       </div>
 
       <div class="control-group">
-        <label class="control-label" for="inputApellido"> Apellido </label>
+        <label class="control-label" for="inputProduto"> Producto </label>
         <div class="controls">
-        <input type="text" id="inputApellido" placeholder="Apellido" name="inputApellido" value="<?php if (isset($_POST['inputApellido'])) echo $_POST['inputApellido']; ?>">
-        </div>
-      </div>
-
-      <div class="control-group">
-        <label class="control-label" for="inputTelefono"> Telefono </label>
-        <div class="controls">
-        <input type="text" id="inputTelefono" placeholder="Telefono" name="inputTelefono" value="<?php if (isset($_POST['inputTelefono'])) echo $_POST['inputTelefono']; ?>">
-        </div>
-      </div>
-
-      <div class="control-group">
-        <label class="control-label" for="inputDireccion"> Direccion </label>
-        <div class="controls">
-        <input type="text" id="inputDireccion" placeholder="Direccion" name="inputDireccion" value="<?php if (isset($_POST['inputDireccion'])) echo $_POST['inputDireccion']; ?>">
-        </div>
-      </div>
-
-      <div class="control-group">
-        <label class="control-label" for="inputTipo"> Tipo </label>
-        <div class="controls">
-          <select id='inputTipo'  name='inputTipo' >
+          <select id='inputProduto'  name='inputProduto' >
             <?php
-              foreach($result_cbx_tio as $key=>$value) {
-                echo "<option value=\"{$value['idTipoPersona']}\"> {$value['tipo_pers']} </option>";
+              foreach($resul_cbx_producto as $key=>$value) {
+                echo "<option value=\"{$value['idProducto']}\"> {$value['prod_nomb']} </option>";
+              }
+            ?>
+          </select>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="inputCliente"> Cliente </label>
+        <div class="controls">
+          <select id='inputCliente'  name='inputCliente' >
+            <?php
+              foreach($resul_cbx_cliente as $key=>$value) {
+                echo "<option value=\"{$value['idPersona']}\"> {$value['pers_nomb']}  {$value['pers_apel']} </option>";
               }
             ?>
           </select>
@@ -249,46 +233,46 @@ if(empty($errores)){
 
       <div class="control-group">
         <div class="controls">
-          <button type="submit" class="btn btn-primary" name="btnpersona"><i class='icon icon-white'></i> Agregar Entrada</button>
+          <button type="submit" class="btn btn-primary" name="btnpedido"><i class=' icon-white'></i> Agregar Entrada</button>
         </div>
       </div>
     </form>
-<h2> Tabla Personas </h2>
+<h2> Tabla Pedidos </h2>
   <table class="table table-striped">
   <tr class="success" >
     <th># ID </th>
-    <th> Nombre  </th>
-    <th> Apellido </th>
-    <th> Telefono </th>
-    <th> Direccion </th>
-    <th> Tipo </th>
+    <th> Fecha Pedido  </th>
+    <th> Cant </th>
+    <th> Producto </th>
+    <th> Cliente </th>
     <th> </th>
   </tr>
 <?php
 
-    for ( $i = 0; $i <count($result); $i++) {
+
+    for ( $i = 0; $i <count($result_producto); $i++) {
       echo "<tr>";
       echo "<td>";
-      echo "{$result[$i][idPersona]}";
+      echo "{$result_producto[$i][idPedido]}";
       echo "</td>";
       echo "<td>";
-      echo "{$result[$i][pers_nomb]} \n";
+      echo "{$result_producto[$i][pedi_fech]} ";
       echo "</td>";
       echo "<td>";
-      echo "{$result[$i][pers_apel]} \n";
+      echo "{$result_producto[$i][pedi_cant]} ";
       echo "</td>";
+
       echo "<td>";
-      echo "{$result[$i][pers_tele]} \n";
+      echo "{$result_detalle[$i][prod_nomb]}";
       echo "</td>";
+
       echo "<td>";
-      echo "{$result[$i][pers_dire]} \n";
+      echo "{$result_nomb[$i][pers_nomb]} {$result_nomb[$i][pers_apel]}";
       echo "</td>";
-      echo "<td>";
-      echo "{$result_tipo[$i][tipo_pers]} \n";
-      echo "</td>";
+
       echo "<td>";
       echo "<a class='btn btn-mini' href='#'><i class='icon-edit'></i> </a>";
-      echo "<a class='btn btn-mini' href='#'><i class='icon-trash'></i></a>";
+      echo "<a class='btn btn-mini' href='#'><i class='icon-trash'></i> </a>";
       echo "</td>";
       echo "</tr>";
     }
@@ -297,7 +281,8 @@ if(empty($errores)){
 
 <?php
   echo "<pre>";
-    // print_r($result_cbx_tio);
+    // print_r($resul_cbx_cliente);
+    // print_r( $_POST['inputId'] );
   echo "</pre>";
 ?>
 
@@ -323,5 +308,6 @@ if(empty($errores)){
 
     <script src="js/jquery.js"></script>
     <script src="js/js.js"></script>
+
   </body>
 </html>

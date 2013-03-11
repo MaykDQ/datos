@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Mar 08, 2013 at 02:41 AM
+-- Generation Time: Mar 11, 2013 at 05:01 AM
 -- Server version: 5.5.24-log
 -- PHP Version: 5.4.3
 
@@ -37,9 +37,10 @@ CREATE TABLE IF NOT EXISTS `categoria` (
 --
 
 INSERT INTO `categoria` (`idCategoria`, `cate_nomb`) VALUES
-(1, 'Alimentos'),
-(2, 'Bebidas'),
-(3, 'Dulces');
+(1, 'Frutas'),
+(2, 'Verduras'),
+(3, 'Dulces'),
+(4, 'Bebidas');
 
 -- --------------------------------------------------------
 
@@ -49,12 +50,28 @@ INSERT INTO `categoria` (`idCategoria`, `cate_nomb`) VALUES
 
 CREATE TABLE IF NOT EXISTS `pedido` (
   `idPedido` int(11) NOT NULL,
-  `pedi_fech` datetime DEFAULT NULL,
+  `pedi_fech` timestamp NULL DEFAULT NULL,
   `pedi_cant` varchar(45) DEFAULT NULL,
   `Personas_idPersona` int(11) NOT NULL,
-  PRIMARY KEY (`idPedido`),
-  KEY `fk_Pedido_Personas1_idx` (`Personas_idPersona`)
+  `idProducto` int(11) DEFAULT NULL,
+  PRIMARY KEY (`idPedido`,`Personas_idPersona`),
+  KEY `fk_Pedido_Personas1_idx` (`Personas_idPersona`),
+  KEY `idProducto` (`idProducto`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `pedido`
+--
+
+INSERT INTO `pedido` (`idPedido`, `pedi_fech`, `pedi_cant`, `Personas_idPersona`, `idProducto`) VALUES
+(1, '2013-03-10 17:46:22', '5\r\n', 2, 1),
+(2, '2013-03-11 05:30:33', '22', 2, 2),
+(3, '2013-03-11 08:08:14', '55', 1, 1),
+(4, '2013-03-11 08:08:22', '55', 2, 2),
+(5, '2013-03-11 08:16:20', '5', 1, 1),
+(6, '2013-03-11 08:16:28', '5', 2, 2),
+(7, '2013-03-11 08:16:40', '5', 1, 2),
+(8, '2013-03-11 08:16:52', '5', 2, 1);
 
 -- --------------------------------------------------------
 
@@ -67,9 +84,9 @@ CREATE TABLE IF NOT EXISTS `persona` (
   `pers_nomb` varchar(45) DEFAULT NULL,
   `pers_apel` varchar(45) DEFAULT NULL,
   `pers_tele` varchar(45) DEFAULT NULL,
-  `empl_dire` varchar(45) DEFAULT NULL,
+  `pers_dire` varchar(45) DEFAULT NULL,
   `TipoPersona_idTipoPersona` int(11) NOT NULL,
-  PRIMARY KEY (`idPersona`),
+  PRIMARY KEY (`idPersona`,`TipoPersona_idTipoPersona`),
   KEY `fk_Personas_TipoPersona1_idx` (`TipoPersona_idTipoPersona`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -77,19 +94,13 @@ CREATE TABLE IF NOT EXISTS `persona` (
 -- Dumping data for table `persona`
 --
 
-INSERT INTO `persona` (`idPersona`, `pers_nomb`, `pers_apel`, `pers_tele`, `empl_dire`, `TipoPersona_idTipoPersona`) VALUES
-(3, 'rtwer', 'dsdg', '3454', 'rter', 2),
-(1111, 'asdfas', 'asdf', '3544', 'sfdg', 2),
-(93397500, 'Pablo', 'Fernandez', '2646470', 'Calle 10 # 30-30', 1),
-(93397501, 'Mauricio', 'Robledo', '2646471', 'Calle 10 # 30-31', 1),
-(93397502, 'Santiago', 'Molina', '264642', 'Calle 10 # 30-32', 1),
-(93397503, 'Isarael', 'Rodriguez', '2646473', 'Calle 10 # 30-33', 1),
-(93397504, 'Arturo', 'Casas', '2646474', 'Calle 10 # 30-34', 1),
-(93397505, 'Julian', 'Marin', '2646475', 'Calle 10 # 30-35', 2),
-(93397506, 'Fernando', 'Quijano', '2646476', 'Calle 10 # 30-36', 2),
-(93397507, 'Dario', 'Arias', '2646477', 'Calle 10 # 30-37', 3),
-(93397508, 'Nicolas', 'Bolivar', '2646478', 'Calle 10 # 30-38', 3),
-(93397509, 'Juliana', 'Triana', '2646479', 'Calle 10 # 30-39', 3);
+INSERT INTO `persona` (`idPersona`, `pers_nomb`, `pers_apel`, `pers_tele`, `pers_dire`, `TipoPersona_idTipoPersona`) VALUES
+(1, 'David', 'Quintero', '2646464', 'calle 10 ', 2),
+(2, 'Sara', 'Cubides', '2656565', 'Calle 11', 1),
+(3, 'Juliana', 'Rojas', '2686868', 'Calle 12', 1),
+(4, 'Maria', 'Terres', '2545454', 'Calle 13', 3),
+(5, 'Mariana', 'Hurtado', '2858585', 'Calle 14', 2),
+(7, 'Andrea', 'Isaza', '2656864', 'Calle 15', 1);
 
 -- --------------------------------------------------------
 
@@ -102,12 +113,21 @@ CREATE TABLE IF NOT EXISTS `producto` (
   `prod_nomb` varchar(45) DEFAULT NULL,
   `prod_desc` varchar(45) DEFAULT NULL,
   `prod_prec_comp` int(11) DEFAULT NULL,
-  `prod_prec_vent` varchar(45) DEFAULT NULL,
+  `prod_prec_vent` int(11) DEFAULT NULL,
   `prod_ruta_imag` varchar(45) DEFAULT NULL,
   `categoria_idCategoria` int(11) NOT NULL,
-  PRIMARY KEY (`idProducto`),
+  PRIMARY KEY (`idProducto`,`categoria_idCategoria`),
   KEY `fk_producto_categoria_idx` (`categoria_idCategoria`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `producto`
+--
+
+INSERT INTO `producto` (`idProducto`, `prod_nomb`, `prod_desc`, `prod_prec_comp`, `prod_prec_vent`, `prod_ruta_imag`, `categoria_idCategoria`) VALUES
+(1, 'Manzanas', 'Manzana Fruta Saludable', 5000, 10000, '/img/manzana.jpg', 1),
+(2, 'Espinaca', 'Espinaca Verdura Saludable', 1000, 2000, '/img/espinaca.jpg', 2),
+(3, 'Yogo Yogo', 'Bebida Saludable', 200, 400, '/img/yoyo.jpg', 4);
 
 -- --------------------------------------------------------
 
@@ -142,7 +162,7 @@ CREATE TABLE IF NOT EXISTS `tipopersona` (
 INSERT INTO `tipopersona` (`idTipoPersona`, `tipo_pers`) VALUES
 (1, 'Cliente'),
 (2, 'Empleado'),
-(3, 'Proovedor');
+(3, 'Prooverdor');
 
 --
 -- Constraints for dumped tables
@@ -152,7 +172,8 @@ INSERT INTO `tipopersona` (`idTipoPersona`, `tipo_pers`) VALUES
 -- Constraints for table `pedido`
 --
 ALTER TABLE `pedido`
-  ADD CONSTRAINT `fk_Pedido_Personas1` FOREIGN KEY (`Personas_idPersona`) REFERENCES `persona` (`idPersona`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `fk_Pedido_Personas1` FOREIGN KEY (`Personas_idPersona`) REFERENCES `persona` (`idPersona`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `idProducto` FOREIGN KEY (`idProducto`) REFERENCES `producto` (`idProducto`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `persona`
@@ -170,8 +191,8 @@ ALTER TABLE `producto`
 -- Constraints for table `producto_has_pedido`
 --
 ALTER TABLE `producto_has_pedido`
-  ADD CONSTRAINT `fk_Producto_has_Pedido_Producto1` FOREIGN KEY (`Producto_idProducto`) REFERENCES `producto` (`idProducto`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `fk_Producto_has_Pedido_Pedido1` FOREIGN KEY (`Pedido_idPedido`) REFERENCES `pedido` (`idPedido`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `fk_Producto_has_Pedido_Pedido1` FOREIGN KEY (`Pedido_idPedido`) REFERENCES `pedido` (`idPedido`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_Producto_has_Pedido_Producto1` FOREIGN KEY (`Producto_idProducto`) REFERENCES `producto` (`idProducto`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

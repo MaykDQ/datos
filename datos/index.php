@@ -43,23 +43,24 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="brand" href="#"> Datos</a>
+          <a class="brand" href="index.php"> Datos</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
-              <li class="active"><a href="#"> Todo </a></li>
-              <li><a href="personas.php"> Personas </a></li>
-              <li><a href="#contact">Contact</a></li>
+              <li class="active"><a href="index.php"> Todo </a></li>
+              <li><a href="categoria.php"> Categoria </a></li>
+              <li><a href="pedido.php"> Pedido </a></li>
+              <li><a href="personas.php"> Persona </a></li>
+              <li><a href="producto.php"> Producto </a></li>
+              <li><a href="tipopersona.php"> Tipo Persona </a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div>
       </div>
     </div>
 
-    <div class="container">
-
-
-
+<div class="container">
 <!-- ::::::::::::::::::::::::::::::: -->
+
 <h2> Tipo Empleado</h2>
   <table class="table table-striped">
   <tr class="success" >

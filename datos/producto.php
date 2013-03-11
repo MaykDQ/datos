@@ -1,16 +1,12 @@
 <?php
-  include_once('libs/meekrodb.php');
-  DB::$user = 'root';
-  DB::$password = '';
-  DB::$dbName = '_datos';
+    include_once('libs/meekrodb.php');
+    DB::$user = 'root';
+    DB::$password = '';
+    DB::$dbName = '_datos';
 
-  $table_to_user = "persona";
+  $table_to_user = "producto";
 
-
-
-  // print_r($result);
-
-if(isset($_POST['btnpersona'])){
+if(isset($_POST['btnproducto'])){
 
   if(!is_numeric($_POST['inputId'])){
     $errores[] = "ID debe ser un dato numérico";
@@ -24,30 +20,35 @@ if(isset($_POST['btnpersona'])){
     $nombre = ($_POST['inputNombre']);
   }
 
-  if(empty($_POST['inputApellido'])){
+  if(empty($_POST['inputDescripcion'])){
     $errores[] = "Olvido digitar Apellido";
   } else {
-    $apellido = ($_POST['inputApellido']);
+    $descripcion = ($_POST['inputDescripcion']);
   }
 
-  if(!is_numeric($_POST['inputTelefono'])){
+  if(!is_numeric($_POST['inputCompra'])){
     $errores[] = " Verifique el numero Telefonico ";
     } else {
-    $telefono = ($_POST['inputTelefono']);
+    $precioCompra = ($_POST['inputCompra']);
   }
 
-  if(empty($_POST['inputDireccion'])){
+  if(empty($_POST['inputVenta'])){
     $errores[] = " Olvido digitar la Direccion ";
   } else {
-    $direccion = ($_POST['inputDireccion']);
+    $precioVenta = ($_POST['inputVenta']);
   }
 
-  if(!is_numeric($_POST['inputTipo'])){
+  if( empty($_POST['inputRuta'])){
     $errores[] = " Olvido digitar el Tipo ";
   } else {
-    $tipo = ($_POST['inputTipo']);
+    $rutaImg = ($_POST['inputRuta']);
   }
 
+  if(!is_numeric($_POST['inputCategoria'])){
+    $errores[] = " Olvido digitar el Tipo ";
+  } else {
+    $categoria = ($_POST['inputCategoria']);
+  }
 
 if(empty($errores)){
 
@@ -58,12 +59,13 @@ if(empty($errores)){
 
     try {
       DB::insert($table_to_user, array(
-        'idPersona'                   => $id,
-        'pers_nomb'                   => $nombre,
-        'pers_apel'                   => $apellido,
-        'pers_tele'                   => $telefono,
-        'pers_dire'                   => $direccion,
-        'TipoPersona_idTipoPersona'   => $tipo
+        'idProducto'                  => $id,
+        'prod_nomb'                   => $nombre,
+        'prod_desc'                   => $descripcion,
+        'prod_prec_comp'              => $precioCompra,
+        'prod_prec_vent'              => $precioVenta,
+        'prod_ruta_imag'              => $rutaImg,
+        'categoria_idCategoria'       => $categoria
       ));
     } catch(MeekroDBException $e) {
         $count = $e->getMessage();
@@ -95,16 +97,16 @@ if(empty($errores)){
  mysql_close();
 }
 
-  $result           = DB::query("SELECT * FROM {$table_to_user}");
+  $result_producto      = DB::query("SELECT * FROM {$table_to_user}");
 
-  $result_tipo      = DB::query("SELECT       tipopersona.tipo_pers
-                                  FROM        persona, tipopersona
-                                  WHERE       persona.TipoPersona_idTipoPersona = tipopersona.idTipoPersona
-                                  ORDER BY    persona.idPersona");
+  $result_categoria     = DB::query("SELECT     categoria.cate_nomb
+                                    FROM        categoria, producto
+                                    WHERE       categoria.idCategoria = producto.categoria_idCategoria
+                                    ORDER BY    producto.idProducto");
 
-  $result_cbx_tio   = DB::query("SELECT       tipopersona.idTipoPersona, tipopersona.tipo_pers
-                                  FROM        tipopersona
-                                  ORDER BY    tipopersona.idTipoPersona");
+  $result_cbx_categoria = DB::query("SELECT     categoria.idCategoria, categoria.cate_nomb
+                                    FROM        categoria
+                                    ORDER BY    categoria.idCategoria");
 ?>
 
 <!DOCTYPE html>
@@ -124,7 +126,8 @@ if(empty($errores)){
       }
     </style>
     <link href="css/bootstrap-responsive.css" rel="stylesheet">
-        <link href="css/css.css" rel="stylesheet">
+    <link href="css/css.css" rel="stylesheet">
+
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -155,8 +158,8 @@ if(empty($errores)){
               <li ><a href="index.php"> Todo </a></li>
               <li><a href="categoria.php"> Categoria </a></li>
               <li><a href="pedido.php"> Pedido </a></li>
-              <li class="active"><a href="personas.php"> Persona </a></li>
-              <li><a href="producto.php"> Producto </a></li>
+              <li ><a href="personas.php"> Persona </a></li>
+              <li class="active"><a href="producto.php"> Producto </a></li>
               <li><a href="tipopersona.php"> Tipo Persona </a></li>
             </ul>
           </div><!--/.nav-collapse -->
@@ -197,7 +200,7 @@ if(empty($errores)){
 ?>
 
 <!-- ::::::::::::::::::::::::::::::: -->
-  <legend> Agregar Persona <button id="showcont"class="btn " name="btnpedido"><i class='icon-plus'></i> </button></legend>
+  <legend> Agregar Producto <button id="showcont"class="btn " name="btnpedido"><i class='icon-plus'></i> </button></legend>
     <form id="fromadd" class="form-horizontal" action="<?php echo $_SERVER['PHP_SELF']?>" method="post">
       <div class="control-group">
         <label class="control-label" for="inputId"># ID </label>
@@ -207,40 +210,47 @@ if(empty($errores)){
       </div>
 
       <div class="control-group">
-        <label class="control-label" for="inputNombre"> Nombre </label>
+        <label class="control-label" for="inputNombre"> Nombre Producto</label>
         <div class="controls">
-        <input type="text" id="inputNombre" placeholder="Nombre" name="inputNombre" value="<?php if (isset($_POST['inputNombre'])) echo $_POST['inputNombre']; ?>">
+        <input type="text" id="inputNombre" placeholder="Nombre Producto" name="inputNombre" value="<?php if (isset($_POST['inputNombre'])) echo $_POST['inputNombre']; ?>">
         </div>
       </div>
 
       <div class="control-group">
-        <label class="control-label" for="inputApellido"> Apellido </label>
+        <label class="control-label" for="inputDescripcion"> Descripcion </label>
         <div class="controls">
-        <input type="text" id="inputApellido" placeholder="Apellido" name="inputApellido" value="<?php if (isset($_POST['inputApellido'])) echo $_POST['inputApellido']; ?>">
+        <input type="text" id="inputDescripcion" placeholder="Descripcion" name="inputDescripcion" value="<?php if (isset($_POST['inputDescripcion'])) echo $_POST['inputDescripcion']; ?>">
         </div>
       </div>
 
       <div class="control-group">
-        <label class="control-label" for="inputTelefono"> Telefono </label>
+        <label class="control-label" for="inputCompra"> Precio Compra </label>
         <div class="controls">
-        <input type="text" id="inputTelefono" placeholder="Telefono" name="inputTelefono" value="<?php if (isset($_POST['inputTelefono'])) echo $_POST['inputTelefono']; ?>">
+        <input type="text" id="inputCompra" placeholder="Precio Compra" name="inputCompra" value="<?php if (isset($_POST['inputCompra'])) echo $_POST['inputCompra']; ?>">
         </div>
       </div>
 
       <div class="control-group">
-        <label class="control-label" for="inputDireccion"> Direccion </label>
+        <label class="control-label" for="inputVenta"> Precio Venta </label>
         <div class="controls">
-        <input type="text" id="inputDireccion" placeholder="Direccion" name="inputDireccion" value="<?php if (isset($_POST['inputDireccion'])) echo $_POST['inputDireccion']; ?>">
+        <input type="text" id="inputVenta" placeholder="Precio Venta" name="inputVenta" value="<?php if (isset($_POST['inputVenta'])) echo $_POST['inputVenta']; ?>">
         </div>
       </div>
 
       <div class="control-group">
-        <label class="control-label" for="inputTipo"> Tipo </label>
+        <label class="control-label" for="inputRuta"> Ruta Imagen </label>
         <div class="controls">
-          <select id='inputTipo'  name='inputTipo' >
+        <input type="text" id="inputRuta" placeholder="Ruta Imagen" name="inputRuta" value="<?php if (isset($_POST['inputRuta'])) echo $_POST['inputRuta']; ?>">
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="inputCategoria"> Producto </label>
+        <div class="controls">
+          <select id='inputCategoria'  name='inputCategoria' >
             <?php
-              foreach($result_cbx_tio as $key=>$value) {
-                echo "<option value=\"{$value['idTipoPersona']}\"> {$value['tipo_pers']} </option>";
+              foreach($result_cbx_categoria as $key=>$value) {
+                echo "<option value=\"{$value['idCategoria']}\"> {$value['cate_nomb']} </option>";
               }
             ?>
           </select>
@@ -249,46 +259,49 @@ if(empty($errores)){
 
       <div class="control-group">
         <div class="controls">
-          <button type="submit" class="btn btn-primary" name="btnpersona"><i class='icon icon-white'></i> Agregar Entrada</button>
+          <button type="submit" class="btn btn-primary" name="btnproducto"><i class=''></i> Agregar Entrada</button>
         </div>
       </div>
     </form>
-<h2> Tabla Personas </h2>
+<h2> Tabla Producto </h2>
   <table class="table table-striped">
   <tr class="success" >
     <th># ID </th>
-    <th> Nombre  </th>
-    <th> Apellido </th>
-    <th> Telefono </th>
-    <th> Direccion </th>
-    <th> Tipo </th>
+    <th> Nombre Producto  </th>
+    <th> Descripcion </th>
+    <th> Precio Compra </th>
+    <th> Precio Venta </th>
+    <th> Ruta Img </th>
+    <th> Categoria </th>
     <th> </th>
   </tr>
 <?php
-
-    for ( $i = 0; $i <count($result); $i++) {
+    for ( $i = 0; $i <count($result_producto); $i++) {
       echo "<tr>";
       echo "<td>";
-      echo "{$result[$i][idPersona]}";
+      echo "{$result_producto[$i][idProducto]}";
       echo "</td>";
       echo "<td>";
-      echo "{$result[$i][pers_nomb]} \n";
+      echo "{$result_producto[$i][prod_nomb]} \n";
       echo "</td>";
       echo "<td>";
-      echo "{$result[$i][pers_apel]} \n";
+      echo "{$result_producto[$i][prod_desc]} \n";
       echo "</td>";
       echo "<td>";
-      echo "{$result[$i][pers_tele]} \n";
+      echo "{$result_producto[$i][prod_prec_comp]} \n";
       echo "</td>";
       echo "<td>";
-      echo "{$result[$i][pers_dire]} \n";
+      echo "{$result_producto[$i][prod_prec_vent]} \n";
       echo "</td>";
       echo "<td>";
-      echo "{$result_tipo[$i][tipo_pers]} \n";
+      echo "{$result_producto[$i][prod_ruta_imag]} \n";
+      echo "</td>";
+      echo "<td>";
+      echo "{$result_categoria[$i][cate_nomb]} \n";
       echo "</td>";
       echo "<td>";
       echo "<a class='btn btn-mini' href='#'><i class='icon-edit'></i> </a>";
-      echo "<a class='btn btn-mini' href='#'><i class='icon-trash'></i></a>";
+      echo "<a class='btn btn-mini' href='#'><i class='icon-trash'></i> </a>";
       echo "</td>";
       echo "</tr>";
     }
@@ -297,7 +310,8 @@ if(empty($errores)){
 
 <?php
   echo "<pre>";
-    // print_r($result_cbx_tio);
+    // print_r($result_producto);
+    // print_r( $_POST['inputId'] );
   echo "</pre>";
 ?>
 
