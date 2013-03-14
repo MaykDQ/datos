@@ -1,11 +1,37 @@
 <?php
 /*
 | :::::::::::::::::::::::::::::::::::::::::::::
-|  Coneccion Base Datos
+|  Inicio y Autenticacion
 | :::::::::::::::::::::::::::::::::::::::::::::
 */
-  include_once('libs/db_init.php');
+include_once('libs/init.php');
 
+function autoload($class)
+{
+    require('classes/' . $class . '.class.php');
+}
+
+// automatically loads all needed classes, when they are needed
+spl_autoload_register("autoload");
+//create a database connection
+$db    = new Database();
+// start this baby and give it the database connection
+$login = new Login($db);
+// base structure
+if ($login->displayRegisterPage()) {
+        include("views/login/register.php");
+} else {
+    // are we logged in ?
+    if ($login->isUserLoggedIn()) {
+        include("views/login/logged_in.php");
+        // further stuff here
+    } else {
+        // not logged in, showing the login form
+//        include("views/login/not_logged_in.php");
+        header( 'Location: index.php' ) ;
+//        header( "index.php" );
+    }
+}
   // Selecciona Tabla
   $table_to_user = "pedido";
 

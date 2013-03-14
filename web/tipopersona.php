@@ -1,13 +1,39 @@
 <?php
 /*
 | :::::::::::::::::::::::::::::::::::::::::::::
-|  Coneccion Base Datos
+|  Inicio y Autenticacion
 | :::::::::::::::::::::::::::::::::::::::::::::
 */
-  include_once('libs/db_init.php');
+include_once('libs/init.php');
 
+function autoload($class)
+{
+    require('classes/' . $class . '.class.php');
+}
+
+// automatically loads all needed classes, when they are needed
+spl_autoload_register("autoload");
+//create a database connection
+$db    = new Database();
+// start this baby and give it the database connection
+$login = new Login($db);
+// base structure
+if ($login->displayRegisterPage()) {
+        include("views/login/register.php");
+} else {
+    // are we logged in ?
+    if ($login->isUserLoggedIn()) {
+        include("views/login/logged_in.php");
+        // further stuff here
+    } else {
+        // not logged in, showing the login form
+//        include("views/login/not_logged_in.php");
+        header( 'Location: index.php' ) ;
+//        header( "index.php" );
+    }
+}
   // Selecciona Tabla
-  $table_to_user = "categoria";
+  $table_to_user = "tipopersona";
 
 /*
 | :::::::::::::::::::::::::::::::::::::::::::::
@@ -23,28 +49,32 @@ if(isset($_POST['btncategoria'])){
   }
 
  if(empty($_POST['inputCategoria'])){
-    $errores[] = "Olvido digitar Categoria";
+    $errores[] = "Olvido digitar Tipo Persona";
   } else {
     $categoria = ($_POST['inputCategoria']);
   }
 
+
+
 if(empty($errores)){
 
   if(mysql_num_rows($result) == 0){
+
     try {
       DB::insert($table_to_user, array(
-        'idCategoria'                => $id,
-        'cate_nomb'                  => $categoria
+        'idTipoPersona'                => $id,
+        'tipo_pers'               => $categoria
       ));
     } catch(MeekroDBException $e) {
         $count = $e->getMessage();
     }
 
     if( !isset($count) ){
-      $success = "El empleado ha quedado registrado en la base de datos";
+      $success = "El Tipo de Persona ha quedado registrado en la base de datos";
+      // exit();
     } else {
       $errors = "<h4>Error del sistema, no ha sido posible registrarlo en la BD</h4>".mysql_error();
-
+        // exit();
     }
 
   } else {
@@ -67,11 +97,10 @@ if(empty($errores)){
 |  Querys
 | :::::::::::::::::::::::::::::::::::::::::::::
 */
-  // Tabla Categoria Completa
-$result_categoria    = DB::query("SELECT *
-                                  FROM      {$table_to_user}
-                                  ORDER BY  categoria.idCategoria DESC");
 
+$result_tipopersona    = DB::query("SELECT *
+                                    FROM      {$table_to_user}
+                                    ORDER BY  tipopersona.idTipoPersona DESC");
 ?>
 
 <!--/*
@@ -98,7 +127,7 @@ $result_categoria    = DB::query("SELECT *
 */-->
 <?php
  if ( isset($success)) {
-    echo '<div class="alert alert-success">"{$success}"</div>';
+    echo "<div class='alert alert-success'>{$success}</div>";
   }
  if ( isset($errors)) {
     echo '<div class="alert alert-error">';
@@ -117,8 +146,10 @@ $result_categoria    = DB::query("SELECT *
 |  Formulario
 | :::::::::::::::::::::::::::::::::::::::::::::
 */-->
-  <legend> Agregar Categoria <button id="showcont"class="btn " name="btnpedido"><i class='icon-plus'></i> </button></legend>
+  <legend> Agregar Persona Tipo <button id="showcont"class="btn " name="btnpedido"><i class='icon-plus'></i> </button></legend>
+
     <form id="fromadd"  class="form-horizontal" action="<?php echo $_SERVER['PHP_SELF']?>" method="post">
+
       <div class="control-group">
         <label class="control-label" for="inputId"># ID </label>
         <div class="controls">
@@ -127,22 +158,22 @@ $result_categoria    = DB::query("SELECT *
       </div>
 
       <div class="control-group">
-        <label class="control-label" for="inputCategoria"> Categoria </label>
+        <label class="control-label" for="inputCategoria"> Tipo </label>
         <div class="controls">
-        <input type="text" id="inputCategoria" placeholder="Categoria" name="inputCategoria" value="<?php if (isset($_POST['inputCategoria'])) echo $_POST['inputCategoria']; ?>">
+        <input type="text" id="inputCategoria" placeholder="Tipo" name="inputCategoria" value="<?php if (isset($_POST['inputCategoria'])) echo $_POST['inputCategoria']; ?>">
         </div>
       </div>
 
       <div class="control-group">
         <div class="controls">
-          <button type="submit" class="btn btn-primary" name="btncategoria"><i class='icon '></i> Agregar Entrada</button>
+          <button type="submit" class="btn btn-primary" name="btncategoria"><i class=' icon-white'></i> Agregar Entrada</button>
         </div>
       </div>
 
     </form>
 
 
- <!--/*
+<!--/*
 | :::::::::::::::::::::::::::::::::::::::::::::
 |  Tabla
 | :::::::::::::::::::::::::::::::::::::::::::::
@@ -151,18 +182,18 @@ $result_categoria    = DB::query("SELECT *
   <table class="table table-striped">
   <tr class="success" >
     <th># ID </th>
-    <th> Categoria  </th>
+    <th> Tipo Rersona  </th>
     <th> </th>
   </tr>
 
 <?php
-    for ( $i = 0; $i <count($result_categoria); $i++) {
+    for ( $i = 0; $i <count($result_tipopersona); $i++) {
       echo "<tr>";
       echo "<td>";
-      echo "{$result_categoria[$i][idCategoria]}";
+      echo "{$result_tipopersona[$i][idTipoPersona]}";
       echo "</td>";
       echo "<td>";
-      echo "{$result_categoria[$i][cate_nomb]} \n";
+      echo "{$result_tipopersona[$i][tipo_pers]} \n";
       echo "</td>";
       echo "<td>";
       echo "<a class='btn btn-mini' href='#'><i class='icon-edit'></i> </a>";
@@ -173,6 +204,7 @@ $result_categoria    = DB::query("SELECT *
 ?>
   </table>
 
+
 <!--/*
 | :::::::::::::::::::::::::::::::::::::::::::::
 |  Fin del Codigo
@@ -180,7 +212,7 @@ $result_categoria    = DB::query("SELECT *
 */-->
 <?php
   echo "<pre>";
-    // print_r($result_categoria);
+    // print_r($result_tipopersona);
   echo "</pre>";
 ?>
 

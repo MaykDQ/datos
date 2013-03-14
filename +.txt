@@ -1,5 +1,0 @@
-DELETE FROM _datos.persona WHERE `idPersona`='93397500';
-
-
-
-
