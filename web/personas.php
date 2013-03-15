@@ -174,7 +174,7 @@ if(empty($errores)){
 |  Formulario
 | :::::::::::::::::::::::::::::::::::::::::::::
 */-->
-  <legend> Agregar Persona <button id="showcont"class="btn " name="btnpedido"><i class='icon-plus'></i> </button></legend>
+  <legend> Agregar Persona <button id="showcont"class="btn-warning " name="btnpedido"><i class='icon-plus'></i> </button></legend>
 
     <form id="fromadd" class="form-horizontal" action="<?php echo $_SERVER['PHP_SELF']?>" method="post">
 
@@ -273,8 +273,8 @@ if(empty($errores)){
       echo "{$result_tipo[$i][tipo_pers]} \n";
       echo "</td>";
       echo "<td>";
-      echo "<a class='btn btn-mini' href='#'><i class='icon-edit'></i> </a>";
-      echo "<a class='btn btn-mini' href='#'><i class='icon-trash'></i></a>";
+      // echo "<a class='btn btn-mini' href='#'><i class='icon-edit'></i> </a>";
+      // echo "<a class='btn btn-mini' href='#'><i class='icon-trash'></i></a>";
       echo "</td>";
       echo "</tr>";
     }

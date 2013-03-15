@@ -99,6 +99,12 @@ $result_categoria    = DB::query("SELECT *
                                   FROM      {$table_to_user}
                                   ORDER BY  categoria.idCategoria DESC");
 
+if ( isset( $_POST['delete_id'] )) {
+    $delet_id = $_POST['delete_id'];
+    DB::delete( $table_to_user, "idCategoria={$delet_id}" );
+}
+
+
 ?>
 
 <!--/*
@@ -144,7 +150,7 @@ $result_categoria    = DB::query("SELECT *
 |  Formulario
 | :::::::::::::::::::::::::::::::::::::::::::::
 */-->
-  <legend> Agregar Categoria <button id="showcont"class="btn " name="btnpedido"><i class='icon-plus'></i> </button></legend>
+  <legend> Agregar Categoria <button id="showcont"class="btn btn-warning" name="btnpedido"><i class='icon-plus'></i> </button></legend>
     <form id="fromadd"  class="form-horizontal" action="<?php echo $_SERVER['PHP_SELF']?>" method="post">
       <div class="control-group">
         <label class="control-label" for="inputId"># ID </label>
@@ -191,9 +197,10 @@ $result_categoria    = DB::query("SELECT *
       echo "<td>";
       echo "{$result_categoria[$i][cate_nomb]} \n";
       echo "</td>";
+
       echo "<td>";
-      echo "<a class='btn btn-mini' href='#'><i class='icon-edit'></i> </a>";
-      echo "<a class='btn btn-mini' href='#'><i class='icon-trash'></i> </a>";
+      // echo "<a class='btn btn-mini' href='#'><i class='icon-edit'></i> </a>";
+      // echo "<a class='btn btn-mini' href='#'><i class='icon-trash'></i> </a>";
       echo "</td>";
       echo "</tr>";
     }
@@ -207,7 +214,7 @@ $result_categoria    = DB::query("SELECT *
 */-->
 <?php
   echo "<pre>";
-    // print_r($result_categoria);
+     print_r($delete_id);
   echo "</pre>";
 ?>
 
