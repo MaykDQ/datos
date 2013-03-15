@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Mar 11, 2013 at 05:01 AM
+-- Generation Time: Mar 15, 2013 at 08:51 PM
 -- Server version: 5.5.24-log
 -- PHP Version: 5.4.3
 
@@ -67,11 +67,9 @@ INSERT INTO `pedido` (`idPedido`, `pedi_fech`, `pedi_cant`, `Personas_idPersona`
 (1, '2013-03-10 17:46:22', '5\r\n', 2, 1),
 (2, '2013-03-11 05:30:33', '22', 2, 2),
 (3, '2013-03-11 08:08:14', '55', 1, 1),
-(4, '2013-03-11 08:08:22', '55', 2, 2),
 (5, '2013-03-11 08:16:20', '5', 1, 1),
 (6, '2013-03-11 08:16:28', '5', 2, 2),
-(7, '2013-03-11 08:16:40', '5', 1, 2),
-(8, '2013-03-11 08:16:52', '5', 2, 1);
+(7, '2013-03-11 08:16:40', '5', 1, 2);
 
 -- --------------------------------------------------------
 
@@ -163,6 +161,28 @@ INSERT INTO `tipopersona` (`idTipoPersona`, `tipo_pers`) VALUES
 (1, 'Cliente'),
 (2, 'Empleado'),
 (3, 'Prooverdor');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE IF NOT EXISTS `users` (
+  `user_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'auto incrementing user_id of each user, unique index',
+  `user_name` varchar(64) COLLATE utf8_unicode_ci NOT NULL COMMENT 'user''s name',
+  `user_password_hash` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'user''s password in salted and hashed format',
+  `user_email` text COLLATE utf8_unicode_ci COMMENT 'user''s email',
+  PRIMARY KEY (`user_id`),
+  UNIQUE KEY `user_name` (`user_name`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='user data' AUTO_INCREMENT=2 ;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`user_id`, `user_name`, `user_password_hash`, `user_email`) VALUES
+(1, 'admin', '$2a$10$A1JQ7oHZcMgPBTbbLp0o3OTTL5Tav4aVDAHqola0TWqXsldLrenPe', 'admin@admin.com');
 
 --
 -- Constraints for dumped tables
